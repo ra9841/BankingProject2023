@@ -38,8 +38,30 @@ public class CustomerVO {
     private byte[] image;
     private String role;
     private String token;
+    private String description;
+    private String loginid;
     
-    private List<Integer> roleids;
+    
+    
+    public String getLoginid() {
+		return loginid;
+	}
+
+	public void setLoginid(String loginid) {
+		this.loginid = loginid;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+
+
+	private List<Integer> roleids;
     
 	
 	public List<Integer> getRoleids() {

@@ -9,6 +9,8 @@ import java.util.Map;
 
 import javax.mail.internet.MimeMessage;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
@@ -22,12 +24,14 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import com.rab3tech.customer.dao.repository.CustomerRepository;
 import com.rab3tech.customer.service.CustomerTransactionService;
+
 import com.rab3tech.dao.entity.Customer;
 import com.rab3tech.vo.CustomerTransactionVO;
 import com.rab3tech.vo.EmailVO;
 
 @Service
 public class EmailServiceImpl implements EmailService{
+	private static final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
 	
 	//
 	@Autowired
@@ -195,7 +199,14 @@ public class EmailServiceImpl implements EmailService{
 	        Context context = new Context();
 	        Map<String,Object> props=new HashMap<>();
 	        props.put("name", mail.getName());
-	        props.put("username", mail.getUsername());
+	       props.put("username", mail.getUsername());
+	   System.out.println("whattttttttttt????????????????????????????"+mail.getUsername());
+	   logger.info("whattttttttttt????????????????????????????"+mail.getUsername());
+	   logger.trace("whattttttttttt????????????????????trace?"+mail.getUsername());
+	   logger.debug("whattttttttttt????????????????????debug?"+mail.getUsername());
+	   logger.warn("whattttttttttt????????????????????warn?????"+mail.getUsername());
+	   logger.error("whattttttttttt?????????????????error???????"+mail.getUsername());
+	   
 	        props.put("password", mail.getPassword());
 	        props.put("sign", "Banking Application");
 	        props.put("location", "Fremont CA100 , USA");

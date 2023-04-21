@@ -9,6 +9,7 @@ public class CustomerUpdateVO {
 	private String mobile;
 	private MultipartFile photo;
 
+
 	public int getCid() {
 		return cid;
 	}

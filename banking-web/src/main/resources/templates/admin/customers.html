@@ -169,7 +169,6 @@
   <td> Email </td>
    <td> Gender </td>
    <td> Mobile </td>
-   <td> Userid </td>
    <td> Photo </td>
   </tr>
   </thead>
@@ -195,7 +194,7 @@
     <td th:text="${customerVO.email}"/>
     <td th:text="${customerVO.gender}"/>
     <td th:text="${customerVO.mobile}"/>
-    <td th:text="${customerVO.userid}"/>
+   
     <td><img th:src="@{'/admin/customers/photo?cid=' + ${customerVO.id}}" style="height: 100px;"/>
     </td>
   </tr>

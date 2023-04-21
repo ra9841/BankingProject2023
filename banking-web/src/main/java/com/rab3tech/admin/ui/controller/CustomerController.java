@@ -5,20 +5,23 @@ import java.util.List;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.rab3tech.customer.service.CustomerService;
 import com.rab3tech.vo.CustomerUpdateVO;
 import com.rab3tech.vo.CustomerVO;
+import com.rab3tech.vo.LoanVo;
 
 @Controller
 @RequestMapping("/admin")
@@ -68,4 +71,77 @@ public class CustomerController {
 	   return "redirect:/admin/customers";
 	}
 	
+	/*
+	 * @GetMapping("/filter/customers") public String
+	 * showCustomerByFilter(@RequestParam String soption,Model model) {
+	 * List<CustomerVO>customerVos=customerService.findCustomers();
+	 * List<CustomerVO>filterList=new ArrayList<>();
+	 * 
+	 * if("Customer".equals(soption)) { for(CustomerVO customerVo:customerVos) {
+	 * if("Customer".equalsIgnoreCase(customerVo.getRole())) {
+	 * filterList.add(customerVo); } } } else
+	 * if("Employee".equalsIgnoreCase(soption)) { for(CustomerVO
+	 * customerVo:customerVos) {
+	 * if("Employee".equalsIgnoreCase(customerVo.getRole())) {
+	 * filterList.add(customerVo); } } } else { filterList.addAll(customerVos); }
+	 * model.addAttribute("customerVOs",filterList); return "admin/dashboard"; }
+	 */
+	
+	
+	
+	@GetMapping("/filter/customers")
+	public String showCustomerByAnotherFilters(@RequestParam String soption,Model model) {
+		List<CustomerVO>customerVos=customerService.findCustomers(soption);
+		model.addAttribute("customerVOs",customerVos);
+		model.addAttribute("option", soption);
+		return "admin/dashboard";
+	}
+	//for ascending sorting
+	@GetMapping("/sort/names/{option}")///{option}
+	public String showCustomerNameSort(@PathVariable String option,Model model) {//@PathVariable String option,
+		List<CustomerVO>customerVos=customerService.sortCustomers(option);//option
+		model.addAttribute("customerVOs",customerVos);
+		return "admin/dashboard";
+	}
+	//for descending sorting
+	@GetMapping("/sort/namesDes/{option}")///{option}
+	public String showCustomerNameSortDesc(@PathVariable String option,Model model) {//@PathVariable String option,
+		List<CustomerVO>customerVos=customerService.sortCustomersDec(option);//option
+		model.addAttribute("customerVOs",customerVos);
+		return "admin/dashboard";
+	}
+	
+	
+	@GetMapping("/loanTypes")
+	public String newLoanType(Model model) {
+		List<LoanVo>loanVoLis=customerService.getAllLoanInfo();
+		model.addAttribute("loanVos",loanVoLis);
+		LoanVo loanVos=new LoanVo();//blank
+		model.addAttribute("loanVo", loanVos);
+		return "admin/loanType";  //loantype.html
+	}
+	
+	
+	@PostMapping("/loanTypes")
+	public String registrationLoan(@Valid @ModelAttribute LoanVo loanVo,BindingResult result,Model model) {
+		if (result.hasErrors()) {
+			List<LoanVo>loanVoLis=customerService.getAllLoanInfo();
+			model.addAttribute("loanVos",loanVoLis);
+			
+			return "admin/loanType";
+		}
+		LoanVo loanvo=customerService.registerCustomerLoanInfo(loanVo);
+     	model.addAttribute("loanVos",loanvo);
+		
+		LoanVo loanVoss=new LoanVo();//blank
+		model.addAttribute("loanVo", loanVoss);
+		return "admin/loanType";
+	}
+	
+	/*
+	 * @GetMapping("/loaned") public String getLoanInfo(Model model) {
+	 * List<LoanVo>loanVo=customerService.getAllLoanInfo();
+	 * model.addAttribute("loanVo",loanVo); return "admin/loanType"; }
+	 */
+
 }

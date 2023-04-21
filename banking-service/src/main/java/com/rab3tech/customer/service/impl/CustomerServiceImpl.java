@@ -3,6 +3,8 @@ package com.rab3tech.customer.service.impl;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -12,12 +14,15 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.rab3tech.admin.dao.repository.AccountStatusRepository;
 import com.rab3tech.admin.dao.repository.AccountTypeRepository;
+import com.rab3tech.admin.dao.repository.LoanTypeRepository;
+import com.rab3tech.admin.dao.repository.LocationRepository;
 import com.rab3tech.admin.dao.repository.MagicCustomerRepository;
 import com.rab3tech.aop.advice.TimeLogger;
 import com.rab3tech.customer.dao.repository.CustomerAccountApprovedRepository;
@@ -26,6 +31,7 @@ import com.rab3tech.customer.dao.repository.CustomerAccountInfoRepository;
 import com.rab3tech.customer.dao.repository.CustomerQuestionsAnsRepository;
 import com.rab3tech.customer.dao.repository.CustomerRepository;
 import com.rab3tech.customer.dao.repository.CustomerTransactionRepository;
+import com.rab3tech.customer.dao.repository.LoginRepository;
 import com.rab3tech.customer.dao.repository.PayeeRepository;
 import com.rab3tech.customer.dao.repository.RoleRepository;
 import com.rab3tech.customer.service.CustomerService;
@@ -36,6 +42,8 @@ import com.rab3tech.dao.entity.CustomerAccountInfo;
 import com.rab3tech.dao.entity.CustomerSaving;
 import com.rab3tech.dao.entity.CustomerSavingApproved;
 import com.rab3tech.dao.entity.CustomerTransaction;
+import com.rab3tech.dao.entity.LoanType;
+import com.rab3tech.dao.entity.Location;
 import com.rab3tech.dao.entity.Login;
 import com.rab3tech.dao.entity.PayeeInfo;
 import com.rab3tech.dao.entity.PayeeStatus;
@@ -48,15 +56,21 @@ import com.rab3tech.utils.TransactionIdGeneratorUtils;
 import com.rab3tech.utils.Utils;
 import com.rab3tech.vo.AccountTypeVO;
 import com.rab3tech.vo.CustomerAccountInfoVO;
+import com.rab3tech.vo.CustomerAccountTypeVo;
+import com.rab3tech.vo.CustomerLocationVo;
 import com.rab3tech.vo.CustomerSavingVO;
 import com.rab3tech.vo.CustomerUpdateVO;
 import com.rab3tech.vo.CustomerVO;
 import com.rab3tech.vo.EmailVO;
 import com.rab3tech.vo.FundTransferVO;
+import com.rab3tech.vo.LoanVo;
 import com.rab3tech.vo.PayeeApproveVO;
 import com.rab3tech.vo.PayeeInfoVO;
 import com.rab3tech.vo.RoleVO;
 import com.rab3tech.vo.UpdatePayeeVO;
+
+import groovy.util.logging.Log;
+
 
 @Service
 @Transactional
@@ -100,6 +114,15 @@ public class CustomerServiceImpl implements CustomerService {
 	
 	@Autowired
 	private EmailService emailService;
+	
+	@Autowired
+	private LocationRepository locationRepository;
+	
+	@Autowired
+	LoginRepository loginRepository;
+	
+	@Autowired
+	LoanTypeRepository loanTypeRepository;
 	
 	@Override
 	public FundTransferVO executeTransaction(FundTransferVO fundTransferVO){
@@ -228,7 +251,23 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Override
 	public List<CustomerVO> findCustomers() {
-		List<Customer> customers = customerRepository.findAll();
+		
+		 List<Customer> customers = customerRepository.findAll();
+		 List<CustomerVO> customerVOs=new ArrayList<>();
+          for(Customer customer:customers) { 
+          CustomerVO customerVO=new CustomerVO(); 
+          BeanUtils.copyProperties(customer, customerVO);
+          Set<Role>roles=customer.getLogin().getRoles();
+    	  for(Role roll:roles) { 
+    		  if(!"ADMIN".equals(roll.getName())){
+    		  customerVO.setRole(roll.getName());
+    		  customerVOs.add(customerVO); 	 
+		  }
+    	  }
+		  }
+		  
+         return customerVOs;
+		 
 		
 		/*
 		 * List<CustomerVO> customerVOs=new ArrayList<CustomerVO>(); 
@@ -236,9 +275,9 @@ public class CustomerServiceImpl implements CustomerService {
 		 *  CustomerVO customerVO=CustomerMapper.toVO(customer);
 		 * customerVOs.add(customerVO); } return customerVOs;
 		 */
-		return customers.stream(). //Stream<Customer>
-		map(CustomerMapper::toVO).//Stream<CustomerVO>
-		collect(Collectors.toList()); //List<CustomerVO>
+		//return customers.stream(). //Stream<Customer>
+		//map(CustomerMapper::toVO).//Stream<CustomerVO>
+		//collect(Collectors.toList()); //List<CustomerVO>
 	}
 	
 	
@@ -265,14 +304,22 @@ public class CustomerServiceImpl implements CustomerService {
 		//I have loaded entity inside persistence context - >>Session
 		Customer customer=customerRepository.findById(customerVO.getCid()).get();
 		try {
+			if(customerVO.getPhoto().getBytes().length!=0) {
+		
+		try {
 			customer.setImage(customerVO.getPhoto().getBytes());
 		} catch (IOException e) {
+			e.printStackTrace();
+		}
+			}
+		}catch (Exception e) {
 			e.printStackTrace();
 		}
 		customer.setName(customerVO.getName());
 		customer.setMobile(customerVO.getMobile());
 		customer.setDom(new Timestamp(new Date().getTime()));
-		///customerRepository.save(customer);
+		//customerRepository.save(customer);
+		
 	}
 	
 	@Override
@@ -512,4 +559,155 @@ public class CustomerServiceImpl implements CustomerService {
 		}
 	}
 
+	@Override
+	public List<CustomerLocationVo> askingLocation() {
+		List<Location> location=locationRepository.findAll();
+		List<CustomerLocationVo> customerLocations=new ArrayList<>();//blank list
+		
+		for(Location locat:location) {
+			CustomerLocationVo customerLocationVo=new CustomerLocationVo();
+			BeanUtils.copyProperties(locat, customerLocationVo);
+			customerLocations.add(customerLocationVo);
+			
+		}
+	
+		return customerLocations;
+	}
+
+	@Override
+	public List<AccountTypeVO> getAccountInformation() {
+		List<AccountType> accountType=accountTypeRepository.findAll();
+		List<AccountTypeVO> AccountTypeVOs=new ArrayList<>();//blank list
+		
+		for(AccountType accunt:accountType) {
+			AccountTypeVO accountTypeVO=new AccountTypeVO();
+			BeanUtils.copyProperties(accunt, accountTypeVO);
+			AccountTypeVOs.add( accountTypeVO);
+		}
+		return AccountTypeVOs;
+	}
+
+	@Override
+	public List<CustomerVO> findAllCustomers() {
+		List<Customer> customers = customerRepository.findAll();
+		 List<CustomerVO> customerVOs=new ArrayList<>();
+         for(Customer customer:customers) { 
+         CustomerVO customerVO=new CustomerVO(); 
+         BeanUtils.copyProperties(customer, customerVO);
+         Set<Role>roles=customer.getLogin().getRoles();
+   	  for(Role roll:roles) { 
+   		  if(!"ADMIN".equals(roll.getName())){
+   		  customerVO.setRole(roll.getName());
+   		  customerVOs.add(customerVO); 	 
+		  }
+   	  }
+		  }
+		  
+		return customerVOs;
+	}
+
+	
+	
+	@Override
+	public List<CustomerVO> findCustomers(String soption) {
+		List<CustomerVO> customer = findAllCustomers();// calling findAllCustomer method so we dont have to write all
+														// code
+
+		// List<Customer>customer= customerRepository.findAll();
+
+		List<CustomerVO> filterList = new ArrayList<>();
+
+		if ("Customer".equals(soption)) {
+			for (CustomerVO customerVo : customer) {
+				if ("Customer".equalsIgnoreCase(customerVo.getRole())) {
+					filterList.add(customerVo);
+				}
+			}
+		} else if ("Employee".equalsIgnoreCase(soption)) {
+			for (CustomerVO customerVo : customer) {
+				if ("Employee".equalsIgnoreCase(customerVo.getRole())) {
+					filterList.add(customerVo);
+				}
+			}
+		} else {
+			filterList.addAll(customer);
+		}
+
+		return filterList;
+	}
+   //for ascending sorting
+	@Override
+	public List<CustomerVO> sortCustomers(String option) {
+		//List<CustomerVO>customerVOs =findCustomers(option);
+		//return customerVOs.stream().sorted(Comparator.comparing(CustomerVO::getName,String.CASE_INSENSITIVE_ORDER))
+				//.collect(Collectors.toList());
+	
+	
+		List<CustomerVO> customerVOs = findCustomers(option);
+		Comparator<CustomerVO> comparator = Comparator.comparing(CustomerVO::getName, String.CASE_INSENSITIVE_ORDER);
+		Collections.sort(customerVOs, comparator);// uses the Collections.sort() method to sort the customerVOs list using the comparator.
+		return customerVOs;
+			
+		 
+		
+	}
+
+	@Override
+	public LoanVo registerCustomerLoanInfo(LoanVo loanVo) {
+		
+		
+		LoanType loanType=new LoanType();
+		loanVo.setDoe(new Timestamp(new Date().getTime()));
+		loanVo.setDom(new Timestamp(new Date().getTime()));
+		BeanUtils.copyProperties(loanVo, loanType);
+		 loanTypeRepository.save(loanType);
+		 return loanVo;
+		
+	
+	
+		
+	}
+
+	@Override
+	public List<LoanVo> getAllLoanInfo() {
+		List<LoanType>loanType=loanTypeRepository.findAll();
+		List<LoanVo>loanVoList=new ArrayList<>();
+		for(LoanType Loan:loanType) {
+			LoanVo loanVo=new LoanVo();
+			BeanUtils.copyProperties(Loan, loanVo);
+			loanVoList.add(loanVo);
+		}
+		return loanVoList;
+	}
+
+	//for descending sorting
+	@Override
+	public List<CustomerVO> sortCustomersDec(String option) {
+
+		List<CustomerVO> customerVOs = findCustomers(option);
+		Comparator<CustomerVO> comparator = Comparator.comparing(CustomerVO::getName, String.CASE_INSENSITIVE_ORDER).reversed();
+		Collections.sort(customerVOs, comparator);// uses the Collections.sort() method to sort the customerVOs list using the comparator.
+		return customerVOs;
+			
+	}
+
+	@Override
+	public List<CustomerLocationVo> askingCustomerLocation() {
+		List<Location> location=locationRepository.findAll();
+		List<CustomerLocationVo> customerLocations=new ArrayList<>();//blank list
+		
+		for(Location locat:location) {
+			CustomerLocationVo customerLocationVo=new CustomerLocationVo();
+			BeanUtils.copyProperties(locat, customerLocationVo);
+			customerLocations.add(customerLocationVo);
+			
+		}
+	
+		return customerLocations;
+	}
+		
+	
 }
+
+
+

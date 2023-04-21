@@ -32,6 +32,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,8 +44,11 @@ import com.rab3tech.customer.service.LoginService;
 import com.rab3tech.customer.service.impl.CustomerEnquiryService;
 import com.rab3tech.customer.service.impl.SecurityQuestionService;
 import com.rab3tech.email.service.EmailService;
+import com.rab3tech.vo.AccountTypeVO;
 import com.rab3tech.vo.ChangePasswordVO;
 import com.rab3tech.vo.CustomerAccountInfoVO;
+import com.rab3tech.vo.CustomerAccountTypeVo;
+import com.rab3tech.vo.CustomerLocationVo;
 import com.rab3tech.vo.CustomerSavingVO;
 import com.rab3tech.vo.CustomerSecurityQueAnsVO;
 import com.rab3tech.vo.CustomerTransactionVO;
@@ -61,7 +65,7 @@ import com.rab3tech.vo.PayeeInfoVO;
  *
  */
 @Controller
-//@RequestMapping("/customer")
+//@RequestMapping("/v3")
 public class CustomerUIController {
 
 	private static final Logger logger = LoggerFactory.getLogger(CustomerUIController.class);
@@ -309,7 +313,7 @@ public class CustomerUIController {
 
 		EmailVO mail = new EmailVO(customerVO.getEmail(), "javahunk2020@gmail.com",
 				"Regarding Customer " + customerVO.getName() + "  userid and password", "", customerVO.getName());
-		mail.setUsername(customerVO.getUserid());
+		mail.setUsername(customerVO.getEmail());
 		mail.setPassword(customerVO.getPassword());
 		emailService.sendUsernamePasswordEmail(mail);
 		System.out.println(customerVO);
@@ -359,11 +363,22 @@ public class CustomerUIController {
 	public String showCustomerEnquiryPage(Model model) {
 		//LoadLocationAndAccountVO loadLocationAndAccountVOs = new LoadLocationAndAccountVO();
 		CustomerSavingVO customerSavingVO = new CustomerSavingVO();
-		
+		List<AccountTypeVO> accountTypeVO=customerService.getAccountInformation();
+		List<CustomerLocationVo> customerLocationVo=customerService.askingLocation();
+		model.addAttribute("accountTypeVO", accountTypeVO);
 		model.addAttribute("customerSavingVO", customerSavingVO);
+		model.addAttribute("customerLocationVo", customerLocationVo);
 		return "customer/customerEnquiry"; // customerEnquiry.html
 	}
 	
+	/*
+	 * @GetMapping("/location") public String selectingLocation(Model model) {
+	 * List<CustomerLocationVo> customerLocationVo=customerService.askingLocation();
+	 * model.addAttribute("customerLocationVo", customerLocationVo); return
+	 * "customer/customerEnquiry"; }
+	 */
+    
+    
 	@PostMapping("/customer/account/enquiry")
 	public String submitEnquiryData(@Valid @ModelAttribute CustomerSavingVO customerSavingVO,
 			BindingResult result, Model model) {
@@ -384,7 +399,7 @@ public class CustomerUIController {
 		} else {
 			model.addAttribute("message", "Sorry , this email is already in use " + customerSavingVO.getEmail());
 		}
-		return "customer/success"; // customerEnquiry.html
+		return "customer/success"; // success.html
 
 	}
 
