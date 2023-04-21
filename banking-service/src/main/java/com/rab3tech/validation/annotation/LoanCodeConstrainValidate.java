@@ -18,7 +18,9 @@ public class LoanCodeConstrainValidate implements ConstraintValidator<LoanCodeFo
 		boolean result;
 		if(rab!=null) {
 			//result=rab.startsWith(nameVald);
-			result=rab.endsWith(nameVald);
+			//result=rab.endsWith(nameVald);
+			//result=rab.equalsIgnoreCase(nameVald);
+			result=rab.length()>5;
 		}else {
 			result=true;
 		}

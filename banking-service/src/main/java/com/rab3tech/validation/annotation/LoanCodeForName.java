@@ -14,10 +14,10 @@ import javax.validation.Payload;
 public @interface LoanCodeForName {
 
 	//define default name code
-	public String Value()default "a";
+	public String Value()default "";
 	
 	//define default error message
-	public String message()default "must have capital,number,special character";
+	public String message()default "must have more than 5";
 	
 	//define default groups
 	public Class<?>[] groups() default {};

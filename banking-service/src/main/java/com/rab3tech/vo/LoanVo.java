@@ -20,7 +20,7 @@ public class LoanVo {
 //	@Size( min=3,max=20,message="is required!!!!!")
 //	@LoanCodeForName(message="start with b" ,Value="b")
 	@LoanCodeForName
-	@Pattern(regexp=".+@.+\\.[a-z]+")
+	//@Pattern(regexp=".+@.+\\.[a-z]+")
 	private String name;
 	private Timestamp doe;
 	private Timestamp dom;
