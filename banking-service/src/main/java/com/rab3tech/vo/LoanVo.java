@@ -7,14 +7,16 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.rab3tech.validation.annotation.LoanCodeForName;
 
 public class LoanVo {
 	private int id;
-	@NotEmpty(message="Write Loan Type??????")
+	//@NotEmpty(message="Write Loan Type??????")
 	private String description;
 	
-	@NotBlank(message="is required??????????")
+	//@NotBlank(message="is required??????????")
 	private String loanCode;
 
 //	@Size( min=3,max=20,message="is required!!!!!")
@@ -24,6 +26,9 @@ public class LoanVo {
 	private String name;
 	private Timestamp doe;
 	private Timestamp dom;
+	private MultipartFile file;
+	private byte[] tphoto;
+	
 	
 	public int getId() {
 		return id;
@@ -61,6 +66,20 @@ public class LoanVo {
 	}
 	public void setDom(Timestamp dom) {
 		this.dom = dom;
+	}
+	
+	
+	public MultipartFile getFile() {
+		return file;
+	}
+	public void setFile(MultipartFile file) {
+		this.file = file;
+	}
+	public byte[] getTphoto() {
+		return tphoto;
+	}
+	public void setTphoto(byte[] tphoto) {
+		this.tphoto = tphoto;
 	}
 	@Override
 	public String toString() {

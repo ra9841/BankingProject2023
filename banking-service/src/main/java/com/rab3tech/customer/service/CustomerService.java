@@ -87,6 +87,8 @@ public interface CustomerService {
 
 	List<CustomerLocationVo> askingCustomerLocation();
 
+	byte[] findPicById(int id);
+
 	
 
 	

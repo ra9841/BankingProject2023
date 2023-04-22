@@ -654,8 +654,6 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Override
 	public LoanVo registerCustomerLoanInfo(LoanVo loanVo) {
-		
-		
 		LoanType loanType=new LoanType();
 		loanVo.setDoe(new Timestamp(new Date().getTime()));
 		loanVo.setDom(new Timestamp(new Date().getTime()));
@@ -704,6 +702,17 @@ public class CustomerServiceImpl implements CustomerService {
 		}
 	
 		return customerLocations;
+	}
+
+	@Override
+	public byte[] findPicById(int id) {
+		Optional<LoanType>existInLoanType=loanTypeRepository.findById(id);
+		if(existInLoanType.isPresent()) {
+			return existInLoanType.get().getTphoto();
+		}else {
+			return null;
+		}
+		
 	}
 		
 	

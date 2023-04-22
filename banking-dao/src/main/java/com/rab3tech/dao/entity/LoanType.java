@@ -2,6 +2,7 @@ package com.rab3tech.dao.entity;
 
 import java.sql.Timestamp;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,6 +20,11 @@ public class LoanType {
 	private String name;
 	private Timestamp doe;
 	private Timestamp dom;
+	
+	@Column(columnDefinition="longblob")
+	private byte[] tphoto;
+	
+	
 	public int getId() {
 		return id;
 	}
@@ -55,5 +61,12 @@ public class LoanType {
 	public void setDom(Timestamp dom) {
 		this.dom = dom;
 	}
+	public byte[] getTphoto() {
+		return tphoto;
+	}
+	public void setTphoto(byte[] tphoto) {
+		this.tphoto = tphoto;
+	}
+	
 
 }

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.rab3tech.customer.service.CustomerService;
 import com.rab3tech.vo.CustomerUpdateVO;
@@ -123,13 +124,17 @@ public class CustomerController {
 	
 	
 	@PostMapping("/loanTypes")
-	public String registrationLoan(@Valid @ModelAttribute LoanVo loanVo,BindingResult result,Model model) {
+	public String registrationLoan(@Valid @ModelAttribute LoanVo loanVo,BindingResult result,MultipartFile file,Model model) throws IOException {
 		if (result.hasErrors()) {
 			List<LoanVo>loanVoLis=customerService.getAllLoanInfo();
 			model.addAttribute("loanVos",loanVoLis);
 			
 			return "admin/loanType";
 		}
+		//for image uploading to database
+		byte[] bphoto=file.getBytes();
+		loanVo.setTphoto(bphoto);
+		
 		LoanVo loanvo=customerService.registerCustomerLoanInfo(loanVo);
      	model.addAttribute("loanVos",loanvo);
 		
@@ -143,5 +148,22 @@ public class CustomerController {
 	 * List<LoanVo>loanVo=customerService.getAllLoanInfo();
 	 * model.addAttribute("loanVo",loanVo); return "admin/loanType"; }
 	 */
+	
+	
+	//Special code to render images by URL
+			@GetMapping("/loantype/photo")
+			public void findCustomerPhotoPic(@RequestParam int id,HttpServletResponse response) throws IOException {
+			   byte[] photo=customerService.findPicById(id);
+			   response.setContentType("image/jpg");
+			   ServletOutputStream outputStream=response.getOutputStream();
+			   if(photo!=null) {
+				   //writing photo inside response body 
+				   outputStream.write(photo);
+			   }else {
+				   outputStream.write(new byte[] {});
+			   }
+			   outputStream.flush();
+			   outputStream.close();
+			}
 
 }

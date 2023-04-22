@@ -39,7 +39,7 @@
   <img th:src="@{/images/branch.png}" alt="Logo" style="height: 120px"/>
   <div style="width: 70%">
   
-   <form style="margin-top: 20px;" th:action="@{/admin/loanTypes}" method="POST"  th:object="${loanVo}" >
+   <form style="margin-top: 20px;" th:action="@{/admin/loanTypes}" method="POST"  th:object="${loanVo}"  enctype="multipart/form-data">
   
   	
     <div class="form-group">
@@ -63,7 +63,11 @@
    <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="error">Name Error</span>
     </div>
     
-    
+    <div class="form-group">
+      <label for="photo">Photo:</label>
+      <input  type="file" style="width: 60%;" class="form-control" th:field="*{file}"  placeholder="upload image file"/>
+   
+    </div>
    
     <button type="submit" class="btn btn-primary">ADD LOAN TYPE</button>
     <button type="submit" class="btn btn-primary">LOAN TYPE</button>
@@ -84,6 +88,7 @@
    <td> dom </td>
    <td> loanCode </td>
    <td> name </td>
+   <td> Image </td>
   </tr>
   </thead>
   <tbody>
@@ -104,6 +109,7 @@
     <td th:text="${customerVO.dom}"/>
      <td th:text="${customerVO.loanCode}"/>
       <td th:text="${customerVO.name}"/>
+       <td><img th:src="@{'/admin/loantype/photo?id=' + ${customerVO.id}}" style="height: 100px;"/>
   </tr>
   </tbody> 
   </table>
