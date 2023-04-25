@@ -658,7 +658,8 @@ public class CustomerServiceImpl implements CustomerService {
 		loanVo.setDoe(new Timestamp(new Date().getTime()));
 		loanVo.setDom(new Timestamp(new Date().getTime()));
 		BeanUtils.copyProperties(loanVo, loanType);
-		 loanTypeRepository.save(loanType);
+		loanType =loanTypeRepository.save(loanType);
+		BeanUtils.copyProperties(loanType, loanVo);
 		 return loanVo;
 		
 	

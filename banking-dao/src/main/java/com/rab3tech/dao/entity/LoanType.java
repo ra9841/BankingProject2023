@@ -9,6 +9,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+
+
+
+
+
+
 @Entity
 @Table(name="loan_type")
 public class LoanType {
@@ -19,12 +25,14 @@ public class LoanType {
 	private String loanCode;
 	private String name;
 	private Timestamp doe;
-	private Timestamp dom;
+	private Timestamp dom;	
 	
+
 	@Column(columnDefinition="longblob")
 	private byte[] tphoto;
 	
 	
+
 	public int getId() {
 		return id;
 	}

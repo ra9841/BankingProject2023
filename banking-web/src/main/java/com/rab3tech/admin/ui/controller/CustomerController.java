@@ -116,7 +116,9 @@ public class CustomerController {
 	@GetMapping("/loanTypes")
 	public String newLoanType(Model model) {
 		List<LoanVo>loanVoLis=customerService.getAllLoanInfo();
+		
 		model.addAttribute("loanVos",loanVoLis);
+		
 		LoanVo loanVos=new LoanVo();//blank
 		model.addAttribute("loanVo", loanVos);
 		return "admin/loanType";  //loantype.html
